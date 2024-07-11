@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Conversation from "../models/conversationModel.js";
+import Message from "../models/messageModel.js";
 export const getUsersForSideBar = async (req, res) => {
   try {
     const loggedInUserId = req.user.userId;
@@ -39,11 +40,37 @@ export const createConversation = async (req, res) => {
 export const getConversations = async (req, res) => {
   try {
     const loggedInUserId = req.user.userId;
+
     const conversations = await Conversation.find({
       participants: loggedInUserId,
     }).populate("participants", "username profilePic");
 
-    res.status(200).json(conversations);
+    // Add unread message count for each conversation
+    const updatedConversations = await Promise.all(
+      conversations.map(async (conversation) => {
+        // Count unread messages for the logged-in user
+        const unreadMessagesCount = await Message.countDocuments({
+          _id: { $in: conversation.messages },
+          receiverId: loggedInUserId,
+          read: false,
+        });
+
+        let lastMessage = null;
+        if (conversation.messages.length > 0) {
+          const lastMessageId =
+            conversation.messages[conversation.messages.length - 1];
+          lastMessage = await Message.findById(lastMessageId);
+        }
+
+        return {
+          ...conversation.toObject(),
+          unreadMessagesCount,
+          lastMessage,
+        };
+      })
+    );
+
+    res.status(200).json(updatedConversations);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
