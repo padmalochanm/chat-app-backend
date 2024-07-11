@@ -44,13 +44,13 @@ export const sendMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const { id: conversationId } = req.params; // Use conversationId instead of receiverId
-    const senderId = req.user.userId;
+    const userId = req.user.userId;
 
-    const conv = await Conversation.findOne(
-      { _id: conversationId, participants: senderId } // Find conversation by id and ensure sender is a participant
-    ).populate("messages");
+    const conversation = await Conversation.findOne({
+      _id: conversationId, participants: userId,
+    }).populate("messages");
 
-    if (!conv) {
+    if (!conversation) {
       return res.status(200).json({
         success: true,
         messages: [],
@@ -59,7 +59,7 @@ export const getMessages = async (req, res) => {
 
     // Update read status for messages where the user is the receiver
     await Message.updateMany(
-      { _id: { $in: conv.messages }, receiverId: userId, read: false },
+      { _id: { $in: conversation.messages }, receiverId: userId, read: false },
       { $set: { read: true } }
     );
 
