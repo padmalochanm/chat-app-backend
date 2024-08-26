@@ -19,6 +19,14 @@ const messageSchema = new mongoose.Schema({
       type: String,
       required: false, // URL or path to the uploaded file
     },
+    fileType: {
+      type: String,
+      required: false, // Type of the uploaded file (e.g., image, video, file)
+    },
+    fileName: {
+      type: String,
+      required: false, // Name of the uploaded file
+    },
     read: {
         type: Boolean,
         default: false,

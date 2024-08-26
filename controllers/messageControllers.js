@@ -5,7 +5,7 @@ import { getReceiverSocketId, io } from "../socket/socket.js";
 export const sendMessage = async (req, res) => {
   try {
     const { id: receiverId } = req.params;
-    const { message, fileUrl } = req.body;
+    const { message, fileUrl, fileType, fileName } = req.body;
     const senderId = req.user.userId;
     let conv = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
@@ -23,6 +23,8 @@ export const sendMessage = async (req, res) => {
       receiverId,
       message: message || null,
       fileUrl: fileUrl || null,
+      fileType: fileType || null,
+      fileName: fileName || null,
     });
     if (newMessage) {
       await newMessage.save();
@@ -48,7 +50,8 @@ export const getMessages = async (req, res) => {
     const userId = req.user.userId;
 
     const conversation = await Conversation.findOne({
-      _id: conversationId, participants: userId,
+      _id: conversationId,
+      participants: userId,
     }).populate("messages");
 
     if (!conversation) {
