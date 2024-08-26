@@ -5,7 +5,6 @@ import connectToMongo from "./db/connectToMongo.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
-import fileRoutes from "./routes/fileRoutes.js";
 import {app, server} from "./socket/socket.js";
 
 dotenv.config();
@@ -17,7 +16,6 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
-app.use("/api/files", fileRoutes);
 
 server.listen(PORT, () => {
   connectToMongo();

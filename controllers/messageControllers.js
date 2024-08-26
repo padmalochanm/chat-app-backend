@@ -5,7 +5,7 @@ import { getReceiverSocketId, io } from "../socket/socket.js";
 export const sendMessage = async (req, res) => {
   try {
     const { id: receiverId } = req.params;
-    const { message } = req.body;
+    const { message, fileUrl } = req.body;
     const senderId = req.user.userId;
     let conv = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
@@ -21,7 +21,8 @@ export const sendMessage = async (req, res) => {
     const newMessage = new Message({
       senderId,
       receiverId,
-      message,
+      message: message || null,
+      fileUrl: fileUrl || null,
     });
     if (newMessage) {
       await newMessage.save();
